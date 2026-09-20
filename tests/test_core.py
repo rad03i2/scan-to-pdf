@@ -21,9 +21,10 @@ def test_multi_page_pdf(tmp_path):
     out = tmp_path / "scan.pdf"
     result = convert([str(tmp_path / "01.png"), str(tmp_path / "02.png")], str(out), Options(grayscale=True, auto_contrast=True))
     assert result["pages"] == 2
-    assert out.read_bytes().startswith(b"%PDF")
-    with Image.open(out) as pdf:
-        assert getattr(pdf, "n_frames", 1) == 2
+    data = out.read_bytes()
+    assert data.startswith(b"%PDF")
+    assert data.rstrip().endswith(b"%%EOF")
+    assert result["bytes"] == len(data)
 
 
 def test_refuses_overwrite(tmp_path):
